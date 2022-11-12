@@ -44,15 +44,39 @@ describe("Token", () => {
   });
 
   describe('transfer',()=>{
+
+    describe('success',()=>{
+      let result , amount;
+      beforeEach(async()=>{
+        amount = tokens('100');
+        let transaction = await token.connect(deployer).transfer(receiver.address,amount);
+        result = await transaction.wait();
+      })
+
         it('sending tokens ',async()=>{
           // before transfer
-        console.log(await token.balanceOf(deployer.address));
-        console.log(await token.balanceOf(receiver.address));
-        let transaction = await token.connect(deployer).transfer(receiver.address,'100');
-        await transaction.wait();
-        console.log(await token.balanceOf(deployer.address));
-        console.log(await token.balanceOf(receiver.address));
-        
+        expect(await token.balanceOf(deployer.address)).to.be.equal(tokens('999900'));
+        expect(await token.balanceOf(receiver.address)).to.be.equal(amount);
         })
+
+        it('emit transfer event' , async()=>{
+          let event = result.events[0]
+           expect(await event.event).to.be.equal("Transfer");
+           expect(await event.args.from).to.be.equal(deployer.address);
+           expect(await event.args.to).to.be.equal(receiver.address);
+           expect(await event.args.value).to.be.equal(amount);
+        })
+    })
+
+    describe('failure',()=>{
+      let invalidAmount , result;
+      it('reject tranfer on insuffient balance', async()=>{
+        invalidAmount = tokens('1000000000');
+        let transaction = await token.connect(deployer);
+       
+        await expect(transaction.transfer(receiver.address,invalidAmount)).to.be.reverted;
+      })
+    })
+   
   })
 });
