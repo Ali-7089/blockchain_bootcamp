@@ -133,4 +133,57 @@ describe("Token", () => {
       });
     })
   })
+
+  describe('delegated token allowance' , ()=>{
+    let transaction, amount,result;
+    beforeEach(async()=>{
+     amount = tokens('100');
+     transaction = await token.connect(deployer).approve(spender.address, amount);
+     result = await transaction.wait();
+    })
+
+    describe('Success',()=>{
+      let tranfer_from , res;
+     beforeEach(async()=>{
+       tranfer_from = await token.connect(spender).TransferFrom(deployer.address,receiver.address,amount);
+       res = await tranfer_from.wait();
+     })
+
+     it('check balance',async()=>{
+      expect(await token.balanceOf(deployer.address)).to.be.equal(tokens('999900'));
+      expect(await token.balanceOf(receiver.address)).to.be.equal(amount);
+     })
+
+     it('check zero allowance',async()=>{
+      expect(await token.allowance(deployer.address,spender.address)).to.be.equal(0);
+     })
+
+     it("emit transfer event", async () => {
+      let event = res.events[0];
+      expect(await event.event).to.be.equal("Transfer");
+      expect(await event.args.from).to.be.equal(deployer.address);
+      expect(await event.args.to).to.be.equal(receiver.address);
+      expect(await event.args.value).to.be.equal(amount);
+    });      
+
+    })
+
+    describe('Failure' , ()=>{
+      it("reject tranfer on insuffient balance", async () => {
+        invalidAmount = tokens("1000000000");
+        await expect(token.connect(spender).TransferFrom(deployer.address,receiver.address, invalidAmount)).to
+          .be.reverted;
+      });
+
+      it("reject invalid recipent address", async () => {
+        await expect(
+          token.connect(spender).TransferFrom(deployer.address,
+            "0x0000000000000000000000000000000000000000",
+            tokens("10")
+          )
+        ).to.be.reverted;
+      });
+    })
+
+  })
 });
