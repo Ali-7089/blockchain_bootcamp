@@ -34,7 +34,7 @@ describe("Exchange", () => {
       })   
   });
 
-describe('send token to exchange',()=>{
+describe('Deposit token to exchange',()=>{
     let amount = tokens('10');
     let Transaction ,result;
     beforeEach(async()=>{
@@ -72,6 +72,47 @@ describe('send token to exchange',()=>{
 
 })
 
+describe('Withdraw token from exchange',()=>{
+  let amount = tokens('10');
+  let Transaction ,result;
+  beforeEach(async()=>{
+  //approve
+   Transaction = await token.connect(user1).approve(exchange.address,amount);
+   result = await Transaction.wait();
+
+  //deposit
+   Transaction = await exchange.connect(user1).depositToken(token.address,amount);
+   result = await Transaction.wait();
+
+   //Withdraw
+   Transaction = await exchange.connect(user1).withDrawTokens(token.address,amount);
+   result = await Transaction.wait();
+})
+
+describe('Succes',()=>{
+  it('check exchange balance',async()=>{
+    expect(await token.balanceOf(exchange.address)).to.equal(0);
+    expect(await exchange.tokens(token.address,user1.address)).to.be.equal(0);
+    expect(await exchange.balanceOf(token.address,user1.address)).to.be.equal(0);
+  })
+  it("emit withdraw event", async () => {
+    // console.log(result)
+    let event = result.events[1];
+    expect(await event.event).to.be.equal("Withdraw");
+    expect(await event.args._token).to.be.equal(token.address);
+    expect(await event.args._user).to.be.equal(user1.address);
+    expect(await event.args._amount).to.be.equal(amount);
+    expect(await event.args._balance).to.be.equal(0);
+  });    
+})
+
+describe('Failure',()=>{
+  it('insufficient balance',async()=>{
+    await expect(exchange.connect(user1).withDrawTokens(token.address,amount)).to.be.reverted;
+  })
+})
+
+})
 
 
  
