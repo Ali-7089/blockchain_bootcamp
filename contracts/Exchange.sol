@@ -6,9 +6,11 @@ import "./Token.sol";
 contract Exchange {
     address public feeAccount;
     uint256 public feePercent;
+    uint256 public orderCount;
 
     mapping(address => mapping(address => uint256)) public tokens;
-    mapping(uint256 => Order) public orderMapping;
+    mapping(uint256 => Order) public orders;
+    mapping(uint256=>bool) public cancelledOrder;
 
     event Deposit(
         address _token,
@@ -23,13 +25,25 @@ contract Exchange {
         uint256 _balance
     );
 
+    event OrderEvent(
+         uint256 Order_id,
+        address user,
+        address _tokenGet,
+        uint256 _amountGet,
+        address _tokenGive,
+        uint256 _amountGive,
+        uint256 timestamp
+    );
+
+    
+
     struct Order {
         uint256 Order_id;
         address user;
-        address _tokenGive;
-        uint256 _amountGive;
         address _tokenGet;
         uint256 _amountGet;
+        address _tokenGive;
+        uint256 _amountGive;
         uint256 timestamp;
     }
 
@@ -63,13 +77,30 @@ contract Exchange {
     // _AmountGive - amount from other party
     //_AmountGet -  taker
     function makeOrder(
-        address _tokenGive,
-        uint256 _amountGive,
         address _tokenGet,
-        uint256 _amountGet
+        uint256 _amountGet,
+        address _tokenGive,
+        uint256 _amountGive
     ) public {
-      
+      //  require(balanceOf(_tokenGive,msg.sender)>=_amountGive);
+      orderCount = orderCount + 1;
+      orders[orderCount] = Order(
+         orderCount,
+         msg.sender,
+        _tokenGet,
+        _amountGet,
+        _tokenGive,
+        _amountGive,
+        block.timestamp 
+      );
+      emit OrderEvent(orderCount,msg.sender,_tokenGet,_amountGet,_tokenGive,_amountGive,block.timestamp);
     }
+
+    //cancel order
+    function cancelOrder(uint256 _orderId)public{
+        Order storage temp = orders[_orderId];
+    }
+
 
     function balanceOf(address _token, address _user)
         public
