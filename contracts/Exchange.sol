@@ -35,7 +35,16 @@ contract Exchange {
         uint256 timestamp
     );
 
-    
+    event Cancel(
+        uint256 Order_id,
+        address user,
+        address _tokenGet,
+        uint256 _amountGet,
+        address _tokenGive,
+        uint256 _amountGive,
+        uint256 timestamp
+    );
+
 
     struct Order {
         uint256 Order_id;
@@ -96,11 +105,22 @@ contract Exchange {
       emit OrderEvent(orderCount,msg.sender,_tokenGet,_amountGet,_tokenGive,_amountGive,block.timestamp);
     }
 
-    //cancel order
-    function cancelOrder(uint256 _orderId)public{
-        Order storage temp = orders[_orderId];
-    }
+    function cancelOrder(uint256 order_id)public{
+      //fetching the order
+      Order storage order = orders[order_id]; 
 
+      require(order.user == msg.sender);
+      require(order.Order_id == order_id);
+
+      //cancel order
+      cancelledOrder[order_id] = true;
+      
+      //emit cancel event
+      emit Cancel(order_id,msg.sender,order._tokenGet,order._amountGet,
+      order._tokenGive,order._amountGive,block.timestamp);
+
+
+    }
 
     function balanceOf(address _token, address _user)
         public
