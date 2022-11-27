@@ -118,7 +118,16 @@ contract Exchange {
       //emit cancel event
       emit Cancel(order_id,msg.sender,order._tokenGet,order._amountGet,
       order._tokenGive,order._amountGive,block.timestamp);
+    }
 
+    // fill order or coin swapping function
+
+    function fillOrder(uint256 order_id) public {
+       Order storage order = orders[order_id];
+
+    }
+
+    function trade() internal{
 
     }
 
