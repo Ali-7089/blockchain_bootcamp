@@ -11,6 +11,7 @@ contract Exchange {
     mapping(address => mapping(address => uint256)) public tokens;
     mapping(uint256 => Order) public orders;
     mapping(uint256=>bool) public cancelledOrder;
+    mapping(uint256=>bool) public filledOrder;
 
     event Deposit(
         address _token,
@@ -42,6 +43,16 @@ contract Exchange {
         uint256 _amountGet,
         address _tokenGive,
         uint256 _amountGive,
+        uint256 timestamp
+    );
+    event FilledOrderEvent(
+        uint256 Order_id,
+        address user,
+        address _tokenGet,
+        uint256 _amountGet,
+        address _tokenGive,
+        uint256 _amountGive,
+        address _creator,
         uint256 timestamp
     );
 
@@ -92,7 +103,7 @@ contract Exchange {
         uint256 _amountGive
     ) public {
       //  require(balanceOf(_tokenGive,msg.sender)>=_amountGive);
-      orderCount = orderCount + 1;
+      orderCount++;
       orders[orderCount] = Order(
          orderCount,
          msg.sender,
@@ -123,12 +134,37 @@ contract Exchange {
     // fill order or coin swapping function
 
     function fillOrder(uint256 order_id) public {
-       Order storage order = orders[order_id];
+       require(order_id >0 && order_id <= orderCount);
+       require(!cancelledOrder[order_id]);
 
+       Order storage order = orders[order_id];
+       trade(order_id,order.user,order._tokenGet,order._amountGet,
+       order._tokenGive,order._amountGive);
+
+       filledOrder[order_id] = true;
+       emit FilledOrderEvent(order_id,msg.sender,order._tokenGet,order._amountGet,
+       order._tokenGive,order._amountGive,order.user,block.timestamp);
     }
 
-    function trade() internal{
+    function trade(
+        uint256 order_id,
+        address user,
+        address _tokenGet,
+        uint256 _amountGet,
+        address _tokenGive,
+        uint256 _amountGive
+    ) internal{
+    //fee account
+    uint256 _feeAmount = (_amountGet * feePercent)/100;
+    //token receiving 
+     tokens[_tokenGet][user] = tokens[_tokenGet][user] + _amountGet;
+     tokens[_tokenGet][msg.sender] = tokens[_tokenGet][msg.sender] - (_amountGet+ _feeAmount);
 
+    tokens[_tokenGet][feeAccount] = tokens[_tokenGet][feeAccount] + _feeAmount;  
+
+     //token spending 
+     tokens[_tokenGive][user] = tokens[_tokenGive][user] - _amountGive;
+     tokens[_tokenGive][msg.sender] = tokens[_tokenGive][msg.sender] + _amountGive;
     }
 
     function balanceOf(address _token, address _user)
