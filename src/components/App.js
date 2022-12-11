@@ -3,17 +3,19 @@ import { useEffect } from 'react';
 import '../App.css';
 import config from '../config.json';
 import TOKEN_ABI from '../abi/Token.json';
+import {useDispatch} from 'react-redux';
+import {loadProvider,loadNetwork} from '../store/ineraction';
 
 function App() {
-  
+  const dispatch = useDispatch();
+
     const loadBlockchainData = async()=>{
       const accounts = await window.ethereum.request({method:'eth_requestAccounts'});
       console.log(accounts[0]);
 
       // connect ether with blockchain
-
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const {chainId} = await provider.getNetwork();
+      const provider = loadProvider(dispatch);
+      const chainId = await loadNetwork(dispatch,provider);
 
       //fetching contracts
       const token = new ethers.Contract( config[chainId].shery.address,TOKEN_ABI,provider);
