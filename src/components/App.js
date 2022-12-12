@@ -1,25 +1,28 @@
-import { ethers } from 'ethers';
 import { useEffect } from 'react';
 import '../App.css';
 import config from '../config.json';
-import TOKEN_ABI from '../abi/Token.json';
 import {useDispatch} from 'react-redux';
-import {loadProvider,loadNetwork} from '../store/ineraction';
+import {loadProvider,loadNetwork , loadAccount , loadTokens , loadExchange} from '../store/ineraction';
 
 function App() {
   const dispatch = useDispatch();
 
     const loadBlockchainData = async()=>{
-      const accounts = await window.ethereum.request({method:'eth_requestAccounts'});
-      console.log(accounts[0]);
 
       // connect ether with blockchain
       const provider = loadProvider(dispatch);
       const chainId = await loadNetwork(dispatch,provider);
-
+    
+      //fetching account and balance
+      loadAccount(dispatch,provider);
+  
       //fetching contracts
-      const token = new ethers.Contract( config[chainId].shery.address,TOKEN_ABI,provider);
-      console.log(await token.symbol());
+      const shery = config[chainId].shery;
+      const eTIT = config[chainId].eTIT
+      const token = await loadTokens([shery.address,eTIT.address],dispatch,provider);
+
+      //fetching exchange contract
+      await loadExchange(config[chainId].exchange.address , dispatch ,provider);
 
     }
 
