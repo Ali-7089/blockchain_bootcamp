@@ -32,15 +32,15 @@ export const tokens = (state = {contracts:[], symbols:[],loaded:false}, action) 
       return{
         ...state,
         loaded : true,
-        symbols :[state.symbols , action.symbols],
-        contracts: [state.contracts , action.contracts]
+        symbols :[...state.symbols , action.symbols],
+        contracts: [...state.contracts , action.contracts]
       }
       case 'TOKEN_2_LOADED':
       return{
         ...state,
         loaded : true,
-        symbols :[state.symbols , action.symbols],
-        contracts: [state.contracts , action.contracts]
+        symbols :[...state.symbols , action.symbols],
+        contracts: [...state.contracts , action.contracts]
       }
     default:
       return state;

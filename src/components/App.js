@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import '../App.css';
 import config from '../config.json';
+import Navbar from './Navbar';
 import {useDispatch} from 'react-redux';
 import {loadProvider,loadNetwork , loadAccount , loadTokens , loadExchange} from '../store/ineraction';
 
@@ -14,7 +15,7 @@ function App() {
       const chainId = await loadNetwork(dispatch,provider);
     
       //fetching account and balance
-      loadAccount(dispatch,provider);
+    
   
       //fetching contracts
       const shery = config[chainId].shery;
@@ -35,7 +36,7 @@ function App() {
   return (
     <div>
 
-      {/* Navbar */}
+      <Navbar/>
 
       <main className='exchange grid'>
         <section className='exchange__section--left grid'>
