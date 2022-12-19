@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import '../App.css';
 import config from '../config.json';
 import Navbar from './Navbar';
+import Markets from './Markets';
 import {useDispatch} from 'react-redux';
 import {loadProvider,loadNetwork , loadAccount , loadTokens , loadExchange} from '../store/ineraction';
 
@@ -16,6 +17,10 @@ function App() {
     
       //fetching account and balance
     
+      //fetch another account when we change from metamask
+      // window.ethereum.on('accountChanged', async ()=>{
+      //   await loadAccount(dispatch,provider);
+      // })
   
       //fetching contracts
       const shery = config[chainId].shery;
@@ -41,8 +46,7 @@ function App() {
       <main className='exchange grid'>
         <section className='exchange__section--left grid'>
 
-          {/* Markets */}
-
+          <Markets/>
           {/* Balance */}
 
           {/* Order */}
