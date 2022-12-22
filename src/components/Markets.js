@@ -1,13 +1,14 @@
 import config from '../config.json';
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
+import { loadTokens } from '../store/ineraction';
 
 const Markets = () => {
-
-    const {chainId} = useSelector(state=>state.provider);
+    const dispatch = useDispatch();
+    const {chainId,connection} = useSelector(state=>state.provider);
     
     const marketHandler=(e)=>{
       const tokens = (e.target.value).split(',');
-      console.log(tokens);
+       loadTokens(tokens, dispatch,connection);
     }
 
     return(
@@ -17,8 +18,8 @@ const Markets = () => {
         </div>
       
       {chainId? (<select name="markets" id="markets" onChange={marketHandler} >
-        <option value={`${config[chainId].shery.address},${config[chainId].eTIT.address}`}>shery/eTIT</option>
-        <option value={`${config[chainId].shery.address},${config[chainId].eTIT.address}`}>shery/sTIT</option>
+        <option value={`${config[chainId].shery.address},${config[chainId].eTIT.address}`}>shery / eTIT</option>
+        <option value={`${config[chainId].shery.address},${config[chainId].sTIT.address}`}>shery / sTIT</option>
        </select>):
        <div>
         <p>tokens not deployed yet</p>
