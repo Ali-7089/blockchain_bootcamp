@@ -76,6 +76,17 @@ export const exchange = (state = {loaded:false}, action) => {
           ...state,
           balances : [...state.balances , action.balance]
         }
+
+        /////////TRANSFER (DEPOSIT && WITHDRAW)
+        case 'TRANSFER_PENDING':
+          return{
+           ...state,
+           transaction:{
+            isPending : true,
+            isSuccessFull:false,
+           },
+          transaction_progress:true
+          }
     default:
       return state;
   }

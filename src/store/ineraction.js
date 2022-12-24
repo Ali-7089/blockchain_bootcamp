@@ -61,7 +61,24 @@ export const loadBalance = async(dispatch,tokens,account,exchange)=>{
 
     balance = ethers.utils.formatUnits(await exchange.balanceOf(tokens[1].address,account),18);
     dispatch({type:'TOKEN_2_EXCHANGE_BALANCE_LOADED',balance})
-
-
 }
+
+// TRANFER (DEPOSIT AND WITHDRAW)
+
+export const TransferToken = async(provider,exchange,transferAmount,token,dispatch)=>{
+
+    dispatch({type:'TRANSFER_PENDING'});
+    let Transaction;
+
+    const signer = await provider.getSigner();
+    const amount = ethers.utils.parseUnits(transferAmount.toString(),18);
+    console.log(amount)
+    Transaction = await token.connect(signer).approve(exchange.address,amount);
+    await Transaction.wait();
+ 
+   //deposit
+    Transaction = await exchange.connect(signer).depositToken(token.address,amount);
+    await Transaction.wait();
+ 
+} 
 

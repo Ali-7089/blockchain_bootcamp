@@ -2,11 +2,12 @@ import logo from '../assets/assets/shery.png'
 import { useSelector,useDispatch } from 'react-redux';
 import { useEffect , useState} from 'react';
 import { loadBalance } from '../store/ineraction';
-import { tokens } from '../store/reducers';
+import { TransferToken } from '../store/ineraction';
 
 
 const Balance = () => {
   const dispatch = useDispatch();
+  const provider = useSelector(state=>state.provider.connection);
   const symbols = useSelector(state=>state.tokens.symbols);
   const contracts = useSelector(state=>state.tokens.contracts);
   const account = useSelector(state =>state.provider.account);
@@ -14,7 +15,7 @@ const Balance = () => {
   const balances = useSelector(state =>state.tokens.balances);
   const exchange_balance = useSelector(state=>state.exchange.balances)
 
-  const[state , setState] = useState(0);
+  const[Token1Transfer , setToken1Transfer] = useState(0);
 
   useEffect(()=>{
     if(contracts && account && exchange){
@@ -24,9 +25,20 @@ const Balance = () => {
 
   const balanceHandler = (e,token)=>{
     if(token.address== contracts[0].address){
-      setState(e.target.value);
+      setToken1Transfer(e.target.value);
     }
-    console.log(state)
+  }
+
+  //[X] Step 1 - do the transfer
+  //[X] step 2 - notify the app that transfer is Pending
+  // step 3 - fetch the info from blockchain that transfer was successfull
+  // step 4 - notify the app that tranfer was successfull
+
+  const depositHandler = (e,token)=>{
+    e.preventDefault();
+   if(token.address==contracts[0].address){
+    TransferToken(provider,exchange,Token1Transfer,token,dispatch);
+   }
   }
 
     return (
@@ -48,7 +60,7 @@ const Balance = () => {
            <p><small>Exchange</small><br />{exchange_balance && exchange_balance[0]}</p>
           </div>
   
-          <form>
+          <form  onSubmit={(e)=>depositHandler(e,contracts[0])}>
             <label htmlFor="token0">Amount</label>
             <input
               type="text"
