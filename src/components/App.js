@@ -10,6 +10,7 @@ import {
   loadAccount,
   loadTokens,
   loadExchange,
+  subscribeToEvent
 } from "../store/ineraction";
 import Balance from "./Balance";
 
@@ -36,7 +37,8 @@ function App() {
     );
 
     //fetching exchange contract
-    await loadExchange(config[chainId].exchange.address, dispatch, provider);
+    const exchange = await loadExchange(config[chainId].exchange.address, dispatch, provider);
+    subscribeToEvent(exchange,dispatch);
   };
 
   useEffect(() => {
