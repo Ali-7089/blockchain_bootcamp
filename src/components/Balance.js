@@ -60,7 +60,17 @@ const Balance = () => {
   const depositHandler = (e,token)=>{
     e.preventDefault();
    if(token.address==contracts[0].address){
-   TransferToken(provider,exchange,Token1Transfer,token,dispatch);
+   TransferToken(provider,exchange,Token1Transfer,'deposit',token,dispatch);
+     setToken1Transfer(0);
+   }else {
+    TransferToken(provider,exchange,Token2Transfer,token,dispatch);
+     setToken2Transfer(0);
+   }
+  }
+  const withdrawHandler = (e,token)=>{
+    e.preventDefault();
+   if(token.address==contracts[0].address){
+   TransferToken(provider,exchange,Token1Transfer,'withdraw',token,dispatch);
      setToken1Transfer(0);
    }else {
     TransferToken(provider,exchange,Token2Transfer,token,dispatch);
@@ -78,7 +88,7 @@ const Balance = () => {
           </div>
         </div>
   
-        {/* Deposit/Withdraw Component 1 (DApp) */}
+        {/* Deposit/Withdraw Component 1 (SHERY) */}
   
         <div className='exchange__transfers--form'>
           <div className='flex-between'>
@@ -87,13 +97,14 @@ const Balance = () => {
            <p><small>Exchange</small><br />{exchange_balance && exchange_balance[0]}</p>
           </div>
   
-          <form  onSubmit={(e)=>depositHandler(e,contracts[0])}>
+          <form  onSubmit={isDeposit?(e)=>depositHandler(e,contracts[0])
+          :(e)=>withdrawHandler(e,contracts[0])}>
             <label htmlFor="token0">{symbols && symbols[0]} Amount</label>
             <input
               type="text"
               id='token0'
               placeholder='0.0000'
-              values = {Token1Transfer===0?' ':Token1Transfer}
+              value = {Token1Transfer===0?'':Token1Transfer}
               onChange={(e)=>balanceHandler(e,contracts[0])}
              />
   
@@ -105,7 +116,7 @@ const Balance = () => {
   
         <hr />
   
-        {/* Deposit/Withdraw Component 2 (mETH) */}
+        {/* Deposit/Withdraw Component 2 (eTIT) */}
   
         <div className='exchange__transfers--form'>
           <div className='flex-between'>
@@ -114,13 +125,14 @@ const Balance = () => {
           <p><small>Exchange</small><br />{exchange_balance && exchange_balance[1]}</p>
           </div>
   
-          <form  onSubmit={(e)=>depositHandler(e,contracts[1])}>
+          <form  onSubmit={isDeposit?(e)=>depositHandler(e,contracts[1])
+          :(e)=>withdrawHandler(e,contracts[1])}>
             <label htmlFor="token1">{symbols && symbols[1]} Amount</label>
             <input
               type="text"
               id='token1'
               placeholder='0.0000'
-              values = {Token2Transfer===0?' ':Token2Transfer}
+              value = {Token2Transfer===0?'':Token2Transfer}
               onChange={(e)=>balanceHandler(e,contracts[1])}
              />
   

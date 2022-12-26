@@ -67,24 +67,34 @@ export const subscribeToEvent = async(exchange,dispatch)=>{
   exchange.on('Deposit',(_token,_user,_amount,_balance,event)=>{
     dispatch({type:'TRANSFER_SUCCESSFUL',event});
   })
+  exchange.on('Withdraw',(_token,_user,_amount,_balance,event)=>{
+    dispatch({type:'TRANSFER_SUCCESSFUL',event});
+  })
 }
 
 // TRANFER (DEPOSIT AND WITHDRAW)
 
-export const TransferToken = async(provider,exchange,transferAmount,token,dispatch)=>{
+export const TransferToken = async(provider,exchange,transferAmount,transactionType,token,dispatch)=>{
 
     dispatch({type:'TRANSFER_PENDING'});
     let Transaction;
    
     try {
-    const signer = await provider.getSigner();
-    const amount = ethers.utils.parseUnits(transferAmount.toString(),18);
-    Transaction = await token.connect(signer).approve(exchange.address,amount);
-    await Transaction.wait();
- 
-   //deposit
-    Transaction = await exchange.connect(signer).depositToken(token.address,amount);
-    await Transaction.wait(); 
+        const signer = await provider.getSigner();
+        const amount = ethers.utils.parseUnits(transferAmount.toString(),18);
+        if(transactionType=='deposit'){
+            Transaction = await token.connect(signer).approve(exchange.address,amount);
+            await Transaction.wait();
+         
+           //deposit
+            Transaction = await exchange.connect(signer).depositToken(token.address,amount);
+            await Transaction.wait();
+        }else {
+            // withdraw
+            Transaction = await exchange.connect(signer).withDrawTokens(token.address,amount);
+            await Transaction.wait();
+        }
+     
     } catch (error) {
         dispatch({type:'TRANSACTION_FAIL'})
     }

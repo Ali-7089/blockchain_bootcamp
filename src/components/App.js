@@ -3,6 +3,8 @@ import "../App.css";
 import config from "../config.json";
 import Navbar from "./Navbar";
 import Markets from "./Markets";
+import Balance from "./Balance";
+import Order from "./Order";
 import { useDispatch } from "react-redux";
 import {
   loadProvider,
@@ -12,7 +14,7 @@ import {
   loadExchange,
   subscribeToEvent
 } from "../store/ineraction";
-import Balance from "./Balance";
+
 
 function App() {
   const dispatch = useDispatch();
@@ -54,7 +56,7 @@ function App() {
           <Markets />
           <Balance/>
 
-          {/* Order */}
+         <Order/>
         </section>
         <section className="exchange__section--right grid">
           {/* PriceChart */}
