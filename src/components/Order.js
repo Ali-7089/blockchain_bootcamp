@@ -1,13 +1,20 @@
 import { useState } from "react";
+import { useSelector,useDispatch } from "react-redux";
 import { useRef } from "react";
+import { makeBuyOrder } from "../store/ineraction";
 
 const Order = () => {
+  const dispatch = useDispatch();
+  const provider = useSelector(state=>state.provider.connection);
+  const exchange = useSelector(state=>state.exchange.exchange);
+  const tokens = useSelector(state=>state.tokens.contracts)
+
     const buyRef = useRef(null);
     const sellRef = useRef(null);
 
     const[isBuy,setIsBuy] = useState(true);
-    const[Amount,setAmount] = useState(0);
-    const[Price, setPrice] = useState(0);
+    const[amount,setAmount] = useState(0);
+    const[price, setPrice] = useState(0);
 
     const tabHandler = (e)=>{
     if(e.target.className!=buyRef.current.className){
@@ -23,7 +30,10 @@ const Order = () => {
 
     const buyHandler=(e)=>{
         e.preventDefault();
-       
+       makeBuyOrder(provider,exchange,tokens,{amount,price},dispatch);
+       setAmount(0);
+       setPrice(0);
+
     } 
 
     const sellHandler=(e)=>{
@@ -41,7 +51,7 @@ const Order = () => {
           </div>
         </div>
   
-        <form onClick={ isBuy?buyHandler:sellHandler}>     
+        <form onSubmit={ isBuy?buyHandler:sellHandler}>     
        <label htmlFor="amount">{isBuy?'Buy Amount':'Sell Amount'}</label>
          
           <input
@@ -49,6 +59,7 @@ const Order = () => {
               id='amount'
               placeholder='0.0000'
               onChange={(e)=>setAmount(e.target.value)}
+              value = {amount===0?'':amount}
           />
   
          
@@ -59,6 +70,7 @@ const Order = () => {
               id='price'
               placeholder='0.0000'
               onChange={(e)=>setPrice(e.target.value)}
+              value = {price===0?'':price}
           />
   
           <button className='button button--filled' type='submit'>
